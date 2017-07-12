@@ -1,0 +1,136 @@
+#!/bin/bash
+thisdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $thisdir
+
+# Installs opinion-miner-the luxe.
+# Needs to install 1) CRF+ package; 2) SVM_Light and 3) models.
+# 1. CRF+
+#    Installed from "crf_lib/CRF++-0.58.tar.gz"
+#    Variable "crf_home" contains target for installation.
+#    Default: subdirectory "crf_lib"
+#    Can be overruled with option "-c"
+# 2. SVM_LIGHT
+#    Installed from tarball downloaded from Internet.
+#    Variable "svm_light_home" contains target for installation.
+#    Default: subdirectory "svm_light"
+#    Can be overruled with option "-s"
+# 3. MODELS
+#    Installed from secret location
+#    Variable "opinion_models_ball_path" contains path to the tarball.
+#    No default.
+#    Can be overruled with option "-m"
+
+# Options:
+# "-c <loc>": loc is location of crf+.
+# "-m <loc>": loc is path to tarball with models
+# "-s <loc>": loc is location of svm light.
+function get_options () {
+    local OPTIND opt=""
+    while getopts a:: opt; do
+	case $opt in
+	    c) crf_home=$OPTARG
+               ;;
+	    m) opinion_models_ball_path=$OPTARG
+               ;;
+	    s) svm_home=$OPTARG
+               ;;
+	    *) echo "Unknown option." 
+               exit 1
+               ;;
+	esac
+    done
+}
+
+#
+# CRF++
+#
+crf_home_default=${thisdir}/crf_lib/CRF++-0.58
+crf_ball=${thisdir}/crf_lib/CRF++-0.58.tar.gz
+crf_dir=${thisdir}/crf_lib/CRF++-0.58
+function install_CRF () {
+    crf_socket=$( dirname "${crf_home}")
+    cd ${crf_socket}
+    tar -xzf ${crf_ball}
+    if
+	[ $? -gt 0 ]
+    then
+	echo "CRF++ not present and not installable"
+	exit 1
+    fi
+    cd ${crf_dir}
+    ./configure
+    make
+    cd ${thisdir}
+    echo "PATH_TO_CRF_TEST='$crf_home/crf_test'" > path_crf.py
+}
+
+#
+# SVM_LIGHT
+#
+svm_light_home_default=${thisdir}/svm_light
+svm_light_ball=svm_light.tar.gz
+svm_light_url=http://download.joachims.org/svm_light/current/${svm_light_ball}
+crf_dir=${thisdir}/crf_lib/CRF++-0.58
+function install_svm_light () {
+    mkdir -p ${svm_light_home}
+    if
+	[ $? -gt 0 ]
+    then
+	echo "SVM_LIGHT not present and not installable"
+	exit 1
+    fi
+    cd ${svm_light_home}
+    wget ${svm_light_url}
+    tar -xzf ${svm_light_ball}
+    if
+	[ $? -gt 0 ]
+    then
+	echo "svm_light not present and not installable"
+	rm -f ${svm_light_ball}
+	exit 1
+    fi
+    cd ${svm_light_home}
+    make
+    rm ${svm_light_ball}
+    cd ${thisdir}
+    echo "PATH_TO_CRF_TEST='$crf_home/crf_test'" > path_crf.py
+}
+
+
+
+opinion_models_ball_path_default=""
+function download_models () {
+    local models_socket=${thisdir}
+    cd ${models_socket}
+    tar xvzf ${opinion_models_ball_path}
+    
+}
+
+
+
+get_options
+crf_home=${crf_home:-${crf_home_default}}
+if
+    [ ! -d ${crf_home} ]
+then
+    install_CRF
+fi
+
+svm_light_home=${svm_light_home:-${svm_light_home_default}}
+if
+    [ ! -d ${svm_light_home} ]
+then
+    install_svm_light
+fi
+
+opinion_models_ball_path=${opinion_models_ball_path:-${opinion_models_ball_path_default}}
+if
+    [ ! -e "${opinion_models_ball_path}" ]
+then
+    echo "No models available for opinion_miner"
+    exit 1
+fi
+download_models
+
+pip install KafNafParserPy
+

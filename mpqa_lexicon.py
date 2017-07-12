@@ -1,7 +1,17 @@
 #!/usr/bin/env python
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
 
 import os
 import re
+import sys
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 
 ##from __init__ import PATH_MPQA_LEXICON
 
@@ -61,7 +71,7 @@ class MPQA_subjectivity_lexicon:
     def print_all(self):
         for (word,pos), (this_type, this_polarity) in self.stemmed.items():
             if this_polarity in ['positive','negative','neutral']:
-                print '%s;%s;%s' % (word,pos,this_polarity.upper())
+                print('%s;%s;%s' % (word,pos,this_polarity.upper()))
         
     def get_type_and_polarity(self,word,pos=None):
         res = None

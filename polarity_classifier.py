@@ -14,8 +14,10 @@ TRAIN_FILE='training_file.txt'
 MODEL_FILE='model.bin'
 INDEX_FILE='index_features.bin'
 
-SVM_LEARN = os.path.join(__here__,'svm_light','svm_learn')
-SVM_CLASSIFY = os.path.join(__here__,'svm_light','svm_classify')
+#SVM_LEARN = os.path.join(__here__,'svm_light','svm_learn')
+#SVM_CLASSIFY = os.path.join(__here__,'svm_light','svm_classify')
+SVM_LEARN = os.path.join(os.environ['svm_light_home'],'svm_learn')
+SVM_CLASSIFY = os.path.join(os.environ['svm_light_home'],'svm_classify')
 
 
 

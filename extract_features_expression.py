@@ -1,9 +1,18 @@
 #!/usr/bin/env python
-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
 import sys
 import os
 import argparse
 import tempfile
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 
 from KafNafParserPy import KafNafParser, KafNafParserMod
@@ -128,7 +137,7 @@ def extract_mpqa(naf_obj, list_token_ids, features, overall_options):
     
     mpqa_lexicon = overall_options.get('mpqa_lexicon')
     if mpqa_lexicon is None:
-        print>>sys.stderr,'WARNING!! MPQA lexicon features selected by the lexicon has not been loaded!!!'
+        eprint('WARNING!! MPQA lexicon features selected by the lexicon has not been loaded!!!')
         return [mpqa_label]
     
     for token_id in list_token_ids:
@@ -260,7 +269,7 @@ def extract_from_lexicon(naf_obj,list_token_ids,features, overall_parameters):
 
 def create_sequence(naf_obj, sentence_id, overall_parameters, list_opinions=[], output=sys.stdout, log=False):
     if log:
-        print>>sys.stderr, '\t\tCreating sequence for the sentence', sentence_id, 'and the opinions', ' '.join(opinion.get_id() for opinion in list_opinions)
+        eprint('\t\tCreating sequence for the sentence {} and the opinions {}'.format(sentence_id, ' '.join(opinion.get_id() for opinion in list_opinions)))
         
     # Get all the token ids that belong to the sentence id
     token_ids = []
@@ -354,7 +363,8 @@ def create_sequence(naf_obj, sentence_id, overall_parameters, list_opinions=[], 
         ############################################
 
         this_str = '\t'.join(values_to_print)
-        output.write(this_str.encode('utf-8')+'\n')        
+#        output.write(this_str.encode('utf-8')+'\n')        
+        output.write(this_str+'\n')        
         #print '\t'.join(values_to_print)
     output.write('\n')
     
@@ -443,7 +453,7 @@ def main(inputfile, type, folder, overall_parameters={},log=False):
         parameter_filename = os.path.join(folder,PARAMETERS_FILENAME)
         fd_parameter = open(parameter_filename,'w')
         pickler.dump(overall_parameters,fd_parameter,protocol=0)
-        print>>sys.stderr,'Parameters saved to file %s' % parameter_filename
+        eprint('Parameters saved to file {}'.format(parameter_filename))
         fd_parameter.close()
         
         #Input is a files with a list of files
@@ -454,7 +464,7 @@ def main(inputfile, type, folder, overall_parameters={},log=False):
         
     elif type == 'tag':
         parameter_filename = os.path.join(folder,PARAMETERS_FILENAME)
-        fd_param = open(parameter_filename,'r')
+        fd_param = open(parameter_filename,'rb')
         overall_parameters = pickler.load(fd_param)
         fd_param.close()
 
@@ -497,7 +507,7 @@ def main(inputfile, type, folder, overall_parameters={},log=False):
 
         if type == 'train':
             #We create it from the training files
-            print>>sys.stderr,'Creating WORDNET LEXICON FILE from %d files and storing it on %s' % (len(files), complete_wn_filename)
+            eprint('Creating WORDNET LEXICON FILE from {} files and storing it on {}'.format(len(files), complete_wn_filename))
             wordnet_lexicon_expression.create_from_files(files,'expression')
             wordnet_lexicon_expression.save_to_file(complete_wn_filename)
         else:
@@ -524,7 +534,7 @@ def main(inputfile, type, folder, overall_parameters={},log=False):
     
     for filename in files:
         if log:
-            print>>sys.stderr,'EXPRESSION: processing file', filename
+            eprint('EXPRESSION: processing file {}'.format(filename))
         
         if isinstance(filename,KafNafParser):
             naf_obj = filename
@@ -547,7 +557,7 @@ def main(inputfile, type, folder, overall_parameters={},log=False):
                         opinions_per_sentence[sentence_id].append(opinion)
                         num_opinions += 1
         if log:
-            print>>sys.stderr,'\tNum of opinions:', num_opinions
+            eprint('\tNum of opinions: {}'.format(num_opinions))
         
         
         if type == 'train':
@@ -583,7 +593,7 @@ def main(inputfile, type, folder, overall_parameters={},log=False):
             
     if gold_fd is not None:
         gold_fd.close() 
-        print>>sys.stderr,'Gold standard in the file %s' % gold_fd.name
+        eprint('Gold standard in the file {}'.format(gold_fd.name))
         
     output_fd.close()
     return output_fd.name

@@ -1,9 +1,20 @@
 #!/usr/bin/env python
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
 
 import sys
 import os
 import argparse
 import tempfile
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 
 from KafNafParserPy import KafNafParser
 from collections import defaultdict
@@ -236,9 +247,9 @@ def create_sequence(naf_obj, this_type, sentence_id, overall_parameters, opinion
     
     if log and opinion is not None:
         if isinstance(opinion, list):
-            print>>sys.stderr, '\t\tCreating sequence for the sentence', sentence_id, 'and the opinion with ids', opinion
+            eprint('\t\tCreating sequence for the sentence {} and the opinion with ids {}'.format(sentence_id, opinion))
         else:
-            print>>sys.stderr, '\t\tCreating sequence for the sentence', sentence_id, 'and the opinion', opinion.get_id()
+            eprint('\t\tCreating sequence for the sentence {} and the opinion {}'.format(sentence_id, opinion.get_id()))
     
      
     # Get all the token ids that belong to the sentence id
@@ -355,7 +366,7 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
         parameter_filename = os.path.join(folder,PARAMETERS_FILENAME)
         fd_parameter = open(parameter_filename,'w')
         pickler.dump(overall_parameters,fd_parameter,protocol=0)
-        print>>sys.stderr,'Parameters saved to file %s' % parameter_filename
+        eprint('Parameters saved to file {}'.format(parameter_filename))
         fd_parameter.close()
         
         #Input is a files with a list of files
@@ -401,7 +412,7 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
           
     for filename in files:
         if log:
-            print>>sys.stderr,'HOLDER: processing file', filename
+            eprint('HOLDER: processing file {}'.format(filename))
         
         if isinstance(filename,KafNafParser):
             naf_obj = filename
@@ -433,7 +444,7 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
                                     num_opinions += 1
         
         if log:
-            print>>sys.stderr,'\tNum of opinions:', num_opinions        
+            eprint('\tNum of opinions: {}'.format(num_opinions))
                 
         if this_type == 'train':
             # For the train a sequence is created for every opinion
@@ -495,7 +506,7 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
             
     if gold_fd is not None:
         gold_fd.close() 
-        print>>sys.stderr,'Gold standard in the file %s' % gold_fd.name
+        eprint('Gold standard in the file {}'.format(gold_fd.name))
     
     return output_fd.name 
     
@@ -513,4 +524,4 @@ if __name__ == '__main__':
     if args.type == 'test':
         overall_parameters['gold_standard'] = args.gold_standard
                     
-    print main(args.inputfile,args.type, args.folder, overall_parameters)
+    print(main(args.inputfile,args.type, args.folder, overall_parameters))

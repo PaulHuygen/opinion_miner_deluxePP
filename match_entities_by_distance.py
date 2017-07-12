@@ -1,8 +1,18 @@
 #!/usr/bin/env python
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
 
 import sys
 from collections import defaultdict
 from KafNafParserPy import KafNafParser
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 
 class Centity:
@@ -152,9 +162,9 @@ if __name__ == '__main__':
         matched_pairs = match_entities(expression_candidates, list_targets, knaf_obj)
     
         for exp, tar in matched_pairs:
-            print exp.to_line()
-            print tar.to_line()
-            print
+            print(exp.to_line())
+            print(tar.to_line())
+            print(' ')
     
 
  

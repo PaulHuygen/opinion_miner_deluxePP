@@ -1,9 +1,19 @@
 #!/usr/bin/env python
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
 
 
 import os
 import sys
 import argparse
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 
 from extract_features_expression import main as expression_feature_extractor
@@ -13,10 +23,11 @@ from extract_sequences import extract_sequences
 import match_entities_by_distance as entity_matcher
 from subprocess import Popen, PIPE
 
-from path_crf import PATH_TO_CRF_TEST
+#from path_crf import PATH_TO_CRF_TEST
 from KafNafParserPy import *
 from polarity_classifier import PolarityClassifier
 
+path_to_crf_test = os.path.join(os.environ['crf_home'], 'crf_test')
 
 __desc = 'Opinion Miner Deluxe'
 __last_edited = '7jan2016'
@@ -110,7 +121,8 @@ def add_opinions(opinion_triples,kaf_naf_obj):
 
         
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Detects opinions in KAF/NAF files', version=__version, epilog='Example of use:  cat example.naf | %(prog)s -d hotel')
+#    parser = argparse.ArgumentParser(description='Detects opinions in KAF/NAF files', version=__version, epilog='Example of use:  cat example.naf | %(prog)s -d hotel')
+    parser = argparse.ArgumentParser(description='Detects opinions in KAF/NAF files', epilog='Example of use:  cat example.naf | %(prog)s -d hotel')
     
     #parser.add_argument('-f',dest='input_file', required=True,help='Input KAF/NAF file')
     input_group = parser.add_mutually_exclusive_group(required=True)
@@ -130,13 +142,15 @@ if __name__ == '__main__':
     
     
     if sys.stdin.isatty():
-        print>>sys.stderr,'Input stream required'
-        print>>sys.stderr,'Example usage: cat my_file.naf | %s' % sys.argv[0]
+#        print>>sys.stderr,'Input stream required'
+#        print>>sys.stderr,'Example usage: cat my_file.naf | %s' % sys.argv[0]
+        eprint('Input stream required')
+        eprint('Example usage: cat my_file.naf | {}'.format(sys.argv[0]))
         parser.print_help(sys.stderr)
         sys.exit(-1)
     
     if args.log:
-        print>>sys.stderr,'Path to CRF TEST: %s' % PATH_TO_CRF_TEST                                                  
+        eprint('Path to CRF TEST: {}'.format(path_to_crf_test))
     kaf_naf_obj = KafNafParser(sys.stdin)
     
     if not args.keep_opinions:
@@ -150,7 +164,7 @@ if __name__ == '__main__':
    
     language = kaf_naf_obj.get_language()
     if args.log:
-        print>>sys.stderr,'Language in the file: %s' % language
+        eprint('Language in the file: {}'.format(language))
         
     model_folder=None
     if args.domain:
@@ -159,11 +173,11 @@ if __name__ == '__main__':
         model_folder=args.path_to_folder
     
     if args.log:
-        print>>sys.stderr,'Model folder: %s' % model_folder
+        eprint('Model folder: {}'.format(model_folder))
     
     if not os.path.exists(model_folder):
-        print>>sys.stderr,'There are no models for the domain %s' % args.domain
-        print>>sys.stderr,'    Model folder should be: %s' % model_folder
+        eprint('There are no models for the domain {}'.format(args.domain))
+        eprint('    Model folder should be: {}'.format(model_folder))
         sys.exit(-1)
     
     #########################################
@@ -177,7 +191,7 @@ if __name__ == '__main__':
     
     # 2) CALL TO THE MODEL
     expression_tagger_cmd = []
-    expression_tagger_cmd.append(PATH_TO_CRF_TEST)
+    expression_tagger_cmd.append(path_to_crf_test)
     expression_tagger_cmd.append('-m')
     expression_tagger_cmd.append(model_folder+'/model.expression')
     expression_tagger_cmd.append(feature_file)
@@ -209,7 +223,7 @@ if __name__ == '__main__':
 
 
     target_tagger_cmd = []
-    target_tagger_cmd.append(PATH_TO_CRF_TEST)
+    target_tagger_cmd.append(path_to_crf_test)
     target_tagger_cmd.append('-m')
     target_tagger_cmd.append(model_folder+'/model.target')
     target_tagger_cmd.append(target_features_file)
@@ -233,7 +247,7 @@ if __name__ == '__main__':
     holder_features_file = holder_feature_extractor(kaf_naf_obj,'tag', model_folder, detected_dse=expression_sequences, log=args.log)
     
     holder_tagger_cmd = []
-    holder_tagger_cmd.append(PATH_TO_CRF_TEST)
+    holder_tagger_cmd.append(path_to_crf_test)
     holder_tagger_cmd.append('-m')
     holder_tagger_cmd.append(model_folder+'/model.holder')
     holder_tagger_cmd.append(holder_features_file)
@@ -329,31 +343,31 @@ if __name__ == '__main__':
         
         
     if args.log:
-        print>>sys.stderr, 'FOUND ENTITIES'
-        print>>sys.stderr, '  Expressions'
+        eprint('FOUND ENTITIES')
+        eprint('  Expressions')
         for list_ids, list_words in expression_sequences:
-            print>>sys.stderr, '    ==>', ' '.join(list_words), str(list_ids)
-        print>>sys.stderr, '  Targets'
+            eprint('    ==>', ' '.join(list_words), str(list_ids))
+        eprint('  Targets')
         for list_ids, list_words in target_sequences:
-            print>>sys.stderr, '    ==>', ' '.join(list_words), str(list_ids)
-        print>>sys.stderr ,'  Holders'
+            eprint('    ==>', ' '.join(list_words), str(list_ids))
+        eprint('  Holders')
         for list_ids, list_words in holder_sequences:
-            print>>sys.stderr ,'    ==>', ' '.join(list_words), str(list_ids)
-        print>>sys.stderr
-        print>>sys.stderr
-        print>>sys.stderr, '  Complete opinions'
+            eprint('    ==>', ' '.join(list_words), str(list_ids))
+        eprint(' ')
+        eprint(' ')
+        eprint('  Complete opinions')
         for e, t, h in final_triples:
-            print>>sys.stderr, '    ==>'
-            print>>sys.stderr ,'      Expression:', e.to_line()
+            eprint('    ==>')
+            eprint('      Expression: {}'.format(e.to_line()))
             if t is None:
-                print>>sys.stderr, '      Target: NONE'
+                eprint( '      Target: NONE')
             else:
-                print>>sys.stderr, '      Target:', t.to_line()
+                eprint( '      Target:', t.to_line())
             
             if h is None:
-                print>>sys.stderr, '      Holder: NONE'
+                eprint( '      Holder: NONE')
             else:
-                print>>sys.stderr, '      Holder:', h.to_line()
+                eprint( '      Holder:{}'.format(h.to_line()))
             
              
     

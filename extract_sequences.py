@@ -1,18 +1,26 @@
 #!/usr/bin/env python
-
-
 '''
 Extract sequences from the ouput of CRF
 '''
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
+from builtins import (
+         bytes, dict, int, list, object, range, str,
+         ascii, chr, hex, input, next, oct, open,
+         pow, round, super,
+         filter, map, zip)
 
 import sys
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 
 def extract_sequences(input, this_type):
     #Input can be a filename or a list of sentence
     my_input = None
     if isinstance(input, str):
-        my_input = open(input,'r')
+        my_input = open(input,'rb')
     elif isinstance(input,list):
         my_input = input
         
@@ -22,7 +30,8 @@ def extract_sequences(input, this_type):
     num_sequence = None
     for line in my_input:
         line = line.strip()
-        if line.startswith('#'):
+#        if line.startswith('#'):
+        if line.startswith(b'#'):
             # # 1 0.025510
             fields = line.strip().split()
             num_sequence = int(fields[1])
@@ -33,10 +42,13 @@ def extract_sequences(input, this_type):
                 current = []
         else:
             #normal line
-            fields = line.strip().split('\t')
+            fields = line.strip().split(b'\t')
             this_id = fields[0]
             this_class = fields[-1]
-            token = fields[1]
+            try:
+                token = fields[1]
+            except IndexError:
+                token = ''
             word_for_id[this_id] = token
             if this_class != 'O':
                  current.append(this_id)
@@ -73,7 +85,7 @@ def extract_sequences(input, this_type):
     already_printed = set()
     final_sequences = []
     for s in these_sequences:
-        string_for_ids = ' '.join(s)
+        string_for_ids = b' '.join(s)
         if remove_duplicated:
             if string_for_ids in already_printed:
                 continue
@@ -92,6 +104,7 @@ if __name__ == '__main__':
     this_type = sys.argv[2]
     sequences = extract_sequences(filename, this_type)
     for ids, words in sequences:
-        print '%s\t%s\t%s' % (this_type,' '.join(words),' '.join(ids))
+#        print('%s\t%s\t%s' % (this_type,' '.join(words),' '.join(ids))
+        print('{}\t{}\t{}'.format(this_type, ' '.join(words), ' '.join(ids)))
         
     
