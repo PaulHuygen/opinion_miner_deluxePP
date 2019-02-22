@@ -8,6 +8,7 @@ from builtins import (
          filter, map, zip)
 
 
+from __future__ import print_function
 import os
 import sys
 import argparse
@@ -86,7 +87,7 @@ def add_opinions(opinion_triples,kaf_naf_obj):
             my_hol = Cholder()
             my_hol.set_span(span_hol)
             hol_text = ' '.join(H.word_list)
-            my_hol.set_comment(hol_text.decode('utf-8'))  
+            my_hol.set_comment(hol_text)  
             new_opinion.set_holder(my_hol)  
             
         #Creating target
@@ -96,7 +97,7 @@ def add_opinions(opinion_triples,kaf_naf_obj):
             my_tar = opinion_data.Ctarget()
             my_tar.set_span(span_tar)
             tar_text = ' '.join(T.word_list)
-            my_tar.set_comment(tar_text.decode('utf-8'))
+            my_tar.set_comment(tar_text)
             new_opinion.set_target(my_tar)
             #########################    
 
@@ -109,7 +110,7 @@ def add_opinions(opinion_triples,kaf_naf_obj):
         #if include_polarity_strength:
         my_exp.set_strength("1")
         exp_text = ' '.join(E.word_list)
-        my_exp.set_comment(exp_text.decode('utf-8'))
+        my_exp.set_comment(exp_text)
         new_opinion.set_expression(my_exp)
         
         kaf_naf_obj.add_opinion(new_opinion)
@@ -121,8 +122,8 @@ def add_opinions(opinion_triples,kaf_naf_obj):
 
         
 if __name__ == '__main__':
-#    parser = argparse.ArgumentParser(description='Detects opinions in KAF/NAF files', version=__version, epilog='Example of use:  cat example.naf | %(prog)s -d hotel')
     parser = argparse.ArgumentParser(description='Detects opinions in KAF/NAF files', epilog='Example of use:  cat example.naf | %(prog)s -d hotel')
+    parser.add_argument('--version', action='version', version='%(prog)s __version')
     
     #parser.add_argument('-f',dest='input_file', required=True,help='Input KAF/NAF file')
     input_group = parser.add_mutually_exclusive_group(required=True)
@@ -142,8 +143,6 @@ if __name__ == '__main__':
     
     
     if sys.stdin.isatty():
-#        print>>sys.stderr,'Input stream required'
-#        print>>sys.stderr,'Example usage: cat my_file.naf | %s' % sys.argv[0]
         eprint('Input stream required')
         eprint('Example usage: cat my_file.naf | {}'.format(sys.argv[0]))
         parser.print_help(sys.stderr)

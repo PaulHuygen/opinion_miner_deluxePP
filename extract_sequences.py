@@ -2,13 +2,7 @@
 '''
 Extract sequences from the ouput of CRF
 '''
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-from builtins import (
-         bytes, dict, int, list, object, range, str,
-         ascii, chr, hex, input, next, oct, open,
-         pow, round, super,
-         filter, map, zip)
+from __future__ import print_function
 
 import sys
 
@@ -29,9 +23,8 @@ def extract_sequences(input, this_type):
     word_for_id = {}
     num_sequence = None
     for line in my_input:
-        line = line.strip()
-#        if line.startswith('#'):
-        if line.startswith(b'#'):
+        line = line.strip().decode()
+        if line.startswith('#'):
             # # 1 0.025510
             fields = line.strip().split()
             num_sequence = int(fields[1])
@@ -66,7 +59,7 @@ def extract_sequences(input, this_type):
     for n1, (numseq1, s1) in enumerate(sequences_of_ids):
         #Should we remove s1?
         for n2, (numseq2, s2) in enumerate(sequences_of_ids):
-            if n1 != n2 and numseq1 > numseq2:
+            if n1 != n2 and numseq1 is not None and numseq2 is not None and int(numseq1) > int(numseq2):
                 common = set(s1) & set(s2)
                 if len(common) != 0:
                     indexes_to_remove.append(n1)
@@ -104,7 +97,6 @@ if __name__ == '__main__':
     this_type = sys.argv[2]
     sequences = extract_sequences(filename, this_type)
     for ids, words in sequences:
-#        print('%s\t%s\t%s' % (this_type,' '.join(words),' '.join(ids))
         print('{}\t{}\t{}'.format(this_type, ' '.join(words), ' '.join(ids)))
         
     

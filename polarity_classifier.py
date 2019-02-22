@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import print_function
 
 import os
 import pickle
@@ -39,7 +41,7 @@ class PolarityClassifier:
             self.type_for_lemma = {}
             fd = open(this_file)
             for line in fd:
-                #tokens = line.decode('utf-8').strip().split(';')
+                #tokens = line.strip().split(';')
                 tokens = line.strip().split(';')
                 self.type_for_lemma[tokens[0]] = tokens[2]
             fd.close()
@@ -141,7 +143,7 @@ class PolarityClassifier:
     
     def write_example_to_file(self,fd,this_class,int_features):
         fd.write(this_class)
-        features_sorted_by_index = sorted(int_features.items(), key=lambda t: t[0])
+        features_sorted_by_index = sorted(list(int_features.items()), key=lambda t: t[0])
         for index_feat, freq_feat in features_sorted_by_index:
             fd.write(' %d:%d'% (index_feat, 1))
         fd.write('\n')

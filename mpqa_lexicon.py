@@ -5,6 +5,8 @@ from builtins import (
          pow, round, super,
          filter, map, zip)
 
+from __future__ import print_function
+from __future__ import print_function
 import os
 import re
 import sys
@@ -69,7 +71,7 @@ class MPQA_subjectivity_lexicon:
             fic.close()
         
     def print_all(self):
-        for (word,pos), (this_type, this_polarity) in self.stemmed.items():
+        for (word,pos), (this_type, this_polarity) in list(self.stemmed.items()):
             if this_polarity in ['positive','negative','neutral']:
                 print('%s;%s;%s' % (word,pos,this_polarity.upper()))
         

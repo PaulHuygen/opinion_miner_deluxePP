@@ -7,6 +7,7 @@ from builtins import (
          pow, round, super,
          filter, map, zip)
 
+from __future__ import print_function
 import sys
 import os
 import argparse
@@ -20,7 +21,7 @@ from KafNafParserPy import KafNafParser
 from collections import defaultdict
 
 try:
-    import cPickle as pickler
+    import pickle as pickler
 except:
     import pickle as picker
 
@@ -328,7 +329,7 @@ def create_sequence(naf_obj, this_type, sentence_id, overall_parameters, opinion
         ############################################
         
         this_str = '\t'.join(values_to_print)
-        output.write(this_str.encode('utf-8')+'\n')        
+        output.write(this_str+'\n')        
         #print '\t'.join(values_to_print)
     output.write('\n')
     
@@ -349,7 +350,7 @@ def create_gold_standard_holder(naf_obj,opinion_list,gold_fd):
             str_ids = ' '.join(ids)
             if str_ids not in already_added:
                 values = [this_text for this_id, this_text, this_offset in list_text_tokens]
-                gold_fd.write('%s\t%s\t%s\n' % (label,(' '.join(values)).encode('utf-8'),' '.join(ids)))
+                gold_fd.write('%s\t%s\t%s\n' % (label,(' '.join(values)),' '.join(ids)))
                 already_added.add(str_ids)
                 
                 
@@ -377,8 +378,11 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
         
     elif this_type == 'tag':
         parameter_filename = os.path.join(folder,PARAMETERS_FILENAME)
-        fd_param = open(parameter_filename,'r')
-        overall_parameters = pickler.load(fd_param)
+        fd_param = open(parameter_filename,'rb')
+        try:
+            overall_parameters = pickler.load(fd_param,encoding='bytes')
+        except TypeError:
+            overall_parameters = pickler.load(fd_param)
         fd_param.close()
 
         #Input is a isngle file
@@ -391,7 +395,7 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
         fd_param = open(parameter_filename,'r')
         these_overall_parameters = pickler.load(fd_param)
         fd_param.close()
-        for opt, val in these_overall_parameters.items():
+        for opt, val in list(these_overall_parameters.items()):
             overall_parameters[opt] = val
         
         #Input is a files with a list of files
@@ -450,7 +454,7 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
             # For the train a sequence is created for every opinion
             #One sequence is created for every DSE (possible to have repeated sentences)
             sentences_with_opinions = set()
-            for this_sentence, these_opinions in opinions_per_sentence.items():
+            for this_sentence, these_opinions in list(opinions_per_sentence.items()):
                 for opinion in these_opinions:
                     sentences_with_opinions.add(this_sentence)
                     create_sequence(naf_obj, this_type, this_sentence, overall_parameters, opinion, output = output_fd)
@@ -472,7 +476,7 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
                 sentence_for_opinion = first_token.get_sent()
                 opinions_per_sentence[sentence_for_opinion].append(list_ids)
                 
-            for this_sentence, these_opinions in opinions_per_sentence.items():
+            for this_sentence, these_opinions in list(opinions_per_sentence.items()):
                 for list_dse_token_ids in these_opinions:
                     create_sequence(naf_obj, this_type, this_sentence, overall_parameters, opinion = list_dse_token_ids, output = output_fd,log=log)  
     
@@ -493,7 +497,7 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
             #For the testing, one sequence is created for every sentence, with no opinion included
             opinion_list = []
             #WE include only the the sentences where there are opinions
-            for this_sentence, these_opinions in opinions_per_sentence.items():
+            for this_sentence, these_opinions in list(opinions_per_sentence.items()):
                 for opinion in these_opinions:
                     create_sequence(naf_obj, this_type, this_sentence, overall_parameters, opinion, output = output_fd)
                     opinion_list.append(opinion)
@@ -512,7 +516,8 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
     
 
 if __name__ == '__main__':
-    argument_parser = argparse.ArgumentParser(description='Extract features and prepare for training/testing from a list of KAF/NAF files', version='1.0')
+    argument_parser = argparse.ArgumentParser(description='Extract features and prepare for training/testing from a list of KAF/NAF files')
+    argument_parser.add_argument('--version', action='version', version='%(prog)s 1.0')
     argument_parser.add_argument('-i', dest='inputfile', required=True,help='Input file with a list of paths to KAF/NAF files (one per line)')
     argument_parser.add_argument('-t', dest='type', choices=['train', 'test','tag'], required=True,  default='train', help='Whether to train or test')
     argument_parser.add_argument('-f', dest='folder', required=True, help='Folder to store the data')
