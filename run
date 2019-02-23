@@ -13,7 +13,7 @@ function get_options () {
                ;;
 	    d) data=$OPTARG
                ;;
-	    s) svm_home=$OPTARG
+	    s) svm_light_home=$OPTARG
                ;;
 	    *) echo "Unknown option." 
                exit 1
@@ -38,6 +38,6 @@ export crf_home=${crf_home:-${crf_home_default}}
 # SVM-LIGHT
 #
 svm_light_home_default=${thisdir}/svm_light
-export svm_light_home=${crf_home:-${crf_home_default}}
+export svm_light_home=${svm_light__home:-${svm_light_home_default}}
 
 python tag_file.py -polarity -d ${data}

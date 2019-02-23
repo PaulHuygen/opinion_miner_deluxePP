@@ -35,7 +35,7 @@ def extract_sequences(input, this_type):
                 current = []
         else:
             #normal line
-            fields = line.strip().split(b'\t')
+            fields = line.strip().split('\t')
             this_id = fields[0]
             this_class = fields[-1]
             try:
@@ -78,7 +78,7 @@ def extract_sequences(input, this_type):
     already_printed = set()
     final_sequences = []
     for s in these_sequences:
-        string_for_ids = b' '.join(s)
+        string_for_ids = ' '.join(s)
         if remove_duplicated:
             if string_for_ids in already_printed:
                 continue

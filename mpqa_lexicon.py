@@ -1,11 +1,4 @@
 #!/usr/bin/env python
-from builtins import (
-         bytes, dict, int, list, object, range, str,
-         ascii, chr, hex, input, next, oct, open,
-         pow, round, super,
-         filter, map, zip)
-
-from __future__ import print_function
 from __future__ import print_function
 import os
 import re

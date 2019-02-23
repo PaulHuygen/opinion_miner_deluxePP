@@ -24,6 +24,12 @@ cd $thisdir
 # "-c <loc>": loc is location of crf+.
 # "-m <loc>": loc is path to tarball with models
 # "-s <loc>": loc is location of svm light.
+opinion_models_ball="models_opinion_miner_deluxePP.tgz"
+opinion_models_ball_path_default="http://kyoto.let.vu.nl/~newsreader/nlpp/"${opinion_models_ball}
+polarity_models_ball="polarity_models.tgz"
+polarity_models_ball_path="http://kyoto.let.vu.nl/~newsreader/nlpp/"${polarity_models_ball}
+
+
 function get_options () {
     local OPTIND opt=""
     while getopts a:: opt; do
@@ -98,12 +104,27 @@ function install_svm_light () {
 
 
 
-opinion_models_ball_path_default=""
-function download_models () {
+function download_install_models () {
     local models_socket=${thisdir}
     cd ${models_socket}
-    tar xvzf ${opinion_models_ball_path}
-    
+    wget ${opinion_models_ball_path}
+    if
+       [ ! -e "${opinion_models_ball}" ]
+    then
+       echo "No models available for opinion_miner"
+    exit 1
+    fi
+    tar -xvzf ${opinion_models_ball}
+#    rm ${opinion_models_ball}
+    wget ${polarity_models_ball_path}
+    if
+       [ ! -e "${polarity_models_ball}" ]
+    then
+       echo "No polarity-models available for opinion_miner"
+    exit 1
+    fi
+    tar xvzf ${polarity_models_ball}
+#    rm ${polarity_models_ball}
 }
 
 
@@ -124,13 +145,7 @@ then
 fi
 
 opinion_models_ball_path=${opinion_models_ball_path:-${opinion_models_ball_path_default}}
-if
-    [ ! -e "${opinion_models_ball_path}" ]
-then
-    echo "No models available for opinion_miner"
-    exit 1
-fi
-download_models
+download_install_models
 
 pip install KafNafParserPy
 

@@ -1,12 +1,4 @@
 #!/usr/bin/env python
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
-from builtins import (
-         bytes, dict, int, list, object, range, str,
-         ascii, chr, hex, input, next, oct, open,
-         pow, round, super,
-         filter, map, zip)
-
 from __future__ import print_function
 import sys
 import os
@@ -23,8 +15,7 @@ def eprint(*args, **kwargs):
 try:
     import pickle as pickler
 except:
-#    import pickle as picker
-    import pickle as pickler
+    import pickle as picker
 
 TRAINING_FILENAME='training.target'
 TESTING_FILENAME='testing.target'
@@ -429,12 +420,13 @@ def main(inputfile, this_type, folder, overall_parameters = {}, detected_dse = {
             # Obtain the opinions per sentence per
             opinions_per_sentence = defaultdict(list)
             for list_name_ids, list_words in detected_dse:
-                list_ids = []
-                for v in list_name_ids:
-                    ne = v[v.rfind(b'#')+1:]
-                    list_ids.append(str(ne, "utf-8"))
-#                list_ids = [v[v.rfind(b'#')+1:] for v in list_name_ids]
-#                first_token = naf_obj.get_token(str(list_ids[0], "utf-8"))
+                list_ids = [v[v.rfind('#')+1:] for v in list_name_ids]
+#                list_ids = []
+#                for v in list_name_ids:
+#                    ne = v[v.rfind(b'#')+1:]
+#                    list_ids.append(str(ne, "utf-8"))
+##                list_ids = [v[v.rfind(b'#')+1:] for v in list_name_ids]
+##                first_token = naf_obj.get_token(str(list_ids[0], "utf-8"))
                 first_token = naf_obj.get_token(list_ids[0])
                 sentence_for_opinion = first_token.get_sent()
                 opinions_per_sentence[sentence_for_opinion].append(list_ids)
