@@ -1,5 +1,6 @@
 #!/bin/bash
-thisdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# thisdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+thisdir="$( dirname $( readlink ${BASH_SOURCE[0]} ))"
 cd ${thisdir}
 # Options:
 # "-c <loc>": loc is location of crf+.
